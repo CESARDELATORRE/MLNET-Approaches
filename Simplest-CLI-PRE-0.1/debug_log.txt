@@ -1,0 +1,32 @@
+2019-02-28 17:17:43.4449|INFO|Microsoft.ML.CLI.Commands.New.NewCommand|Inferring Columns ...
+2019-02-28 17:17:44.2111|INFO|Microsoft.ML.CLI.Commands.New.NewCommand|Creating Data loader ...
+2019-02-28 17:17:44.2111|INFO|Microsoft.ML.CLI.Commands.New.NewCommand|Loading data ...
+2019-02-28 17:17:44.2249|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|*************************************************
+2019-02-28 17:17:44.2249|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|*       Metrics for regression models     
+2019-02-28 17:17:44.2249|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|*------------------------------------------------
+2019-02-28 17:17:44.2368|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|   Trainer                            R2-Score  LossFn  Absolute-loss  Squared-loss   RMS-loss  
+2019-02-28 17:17:46.9963|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|1  SdcaRegression                     0.902     9.33    .77            9.33           3.05      
+2019-02-28 17:17:47.6472|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|2  LightGbmRegression                 0.944     5.36    .41            5.36           2.31      
+2019-02-28 17:17:48.4373|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|3  FastTreeRegression                 0.944     5.32    .42            5.32           2.31      
+2019-02-28 17:17:49.3671|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|4  FastTreeTweedieRegression          0.937     5.98    .42            5.98           2.44      
+2019-02-28 17:17:50.2721|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|5  FastForestRegression               0.895     9.98    1.08           9.98           3.16      
+2019-02-28 17:17:50.8178|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|6  PoissonRegression                  0.675     30.88   2.88           30.88          5.56      
+2019-02-28 17:17:51.0063|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|7  OnlineGradientDescentRegression    0.372     59.67   4.6            59.67          7.72      
+2019-02-28 17:17:51.2666|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|8  OrdinaryLeastSquaresRegression     0.902     9.34    .74            9.34           3.06      
+2019-02-28 17:17:51.9005|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|9  LightGbmRegression                 0.791     19.85   2.32           19.85          4.46      
+2019-02-28 17:17:59.8164|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|10 FastTreeRegression                 0.941     5.61    .4             5.61           2.37      
+2019-02-28 17:18:03.3054|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|11 FastTreeTweedieRegression          0.925     7.14    .42            7.14           2.67      
+2019-02-28 17:18:04.6149|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|12 LightGbmRegression                 0.943     5.4     .39            5.4            2.32      
+2019-02-28 17:18:05.6660|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|13 FastTreeRegression                 0.105     84.98   6.87           84.98          9.22      
+2019-02-28 17:18:06.9046|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|14 FastTreeTweedieRegression          0.394     57.51   4.76           57.51          7.58      
+2019-02-28 17:18:07.7033|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|15 LightGbmRegression                 0.939     5.76    .48            5.76           2.4       
+2019-02-28 17:18:09.0202|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|16 FastTreeRegression                 0.945     5.18    .4             5.18           2.28      
+2019-02-28 17:18:10.9763|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|17 FastTreeTweedieRegression          0.874     12      .85            12             3.46      
+2019-02-28 17:18:12.0507|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|18 LightGbmRegression                 0.952     4.55    .4             4.55           2.13      
+2019-02-28 17:18:12.4449|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|19 FastTreeRegression                 0.816     17.49   1.85           17.49          4.18      
+2019-02-28 17:18:13.4280|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|20 FastTreeTweedieRegression          -1.067    196.27  10.21          196.27         14.01     
+2019-02-28 17:18:14.0097|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|21 LightGbmRegression                 0.761     22.68   2.59           22.68          4.76      
+2019-02-28 17:18:14.5347|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|22 FastTreeRegression                 0.927     6.97    .84            6.97           2.64      
+2019-02-28 17:18:14.5347|INFO|Microsoft.ML.CLI.Commands.New.NewCommand|Retrieving best pipeline ...
+2019-02-28 17:18:14.5587|INFO|Microsoft.ML.CLI.Commands.New.NewCommand|Saving the best model ...
+2019-02-28 17:18:14.7842|INFO|Microsoft.ML.CLI.Commands.New.NewCommand|Generating a console project for the best pipeline at location  : D:\GitRepos\MLNET-Approaches\Simplest-CLI-PRE-0.1
