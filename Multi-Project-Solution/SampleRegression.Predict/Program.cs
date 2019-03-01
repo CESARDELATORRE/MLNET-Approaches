@@ -88,7 +88,6 @@ namespace SampleRegression.Predict
                                             hasHeader: true,
                                             separatorChar: ',');
 
-            Console.WriteLine($"");
             Console.WriteLine($"=============== Multiple Predictions  ===============");
             var predictions = PerformMultiplePredictions(model, testDataView);
 

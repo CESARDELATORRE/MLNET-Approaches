@@ -31,20 +31,20 @@ namespace Sample
             // Set a random seed for repeatable/deterministic results across multiple trainings.
             var mlContext = new MLContext(seed: 1);
 
-            // 1. Load Data
+            // Load Data
             IDataView trainingDataView = LoadTrainingData(mlContext, TRAIN_DATA_PATH);
             IDataView testDataView = LoadTrainingData(mlContext, TEST_DATA_PATH);
 
-            // 2. Train Model
+            // Train Model
             (ITransformer model, string trainerName) = TrainModel(mlContext, trainingDataView);
 
-            // 3. Evaluate quality of Model
+            // Evaluate quality of Model
             EvaluateModel(mlContext, model, testDataView, trainerName);
 
-            // 4. (Optional) Try a single prediction (Only one case with first row of DataSet)
+            // (Optional) Try a single prediction (Only one case with first row of DataSet)
             TrySinglePrediction(mlContext, model, testDataView);
 
-            // 5. Save model
+            // Save model
             SaveModel(mlContext, model, MODEL_RELATIVE_PATH);
 
             ConsoleHelper.ConsoleWriteHeader("=============== End of process, hit any key to finish ===============");
