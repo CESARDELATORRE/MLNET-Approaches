@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleRegression.Predict", "SampleRegression.Predict\SampleRegression.Predict.csproj", "{E6F8AECC-C77D-4C80-B48B-1B512441B12F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleRegression.Common", "SampleRegression.Common\SampleRegression.Common.csproj", "{69167B29-9739-49F9-ACBE-7A4A12CA10EE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleRegression.Train", "SampleRegression.Train\SampleRegression.Train.csproj", "{B3458725-2BF1-4E48-87A5-2A23F8B3AA06}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{E6F8AECC-C77D-4C80-B48B-1B512441B12F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6F8AECC-C77D-4C80-B48B-1B512441B12F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6F8AECC-C77D-4C80-B48B-1B512441B12F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69167B29-9739-49F9-ACBE-7A4A12CA10EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69167B29-9739-49F9-ACBE-7A4A12CA10EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69167B29-9739-49F9-ACBE-7A4A12CA10EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69167B29-9739-49F9-ACBE-7A4A12CA10EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3458725-2BF1-4E48-87A5-2A23F8B3AA06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3458725-2BF1-4E48-87A5-2A23F8B3AA06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3458725-2BF1-4E48-87A5-2A23F8B3AA06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3458725-2BF1-4E48-87A5-2A23F8B3AA06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

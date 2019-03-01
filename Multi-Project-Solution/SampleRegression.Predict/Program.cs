@@ -1,4 +1,8 @@
-// This is an auto generated file by ML.NET CLI
+//*****************************************************************************************
+//*                                                                                       *
+//* This is an auto-generated file by Microsoft ML.NET CLI (Command-Line Interface) tool. *
+//*                                                                                       *
+//*****************************************************************************************
 
 using System;
 using System.IO;
@@ -7,52 +11,65 @@ using Microsoft.ML;
 using Microsoft.ML.Core.Data;
 using Microsoft.ML.Data;
 using Microsoft.Data.DataView;
-using Microsoft.ML.LightGBM;
-using Microsoft.ML.Transforms.Categorical;
-
+using SampleRegression.Common;
+using System.Collections.Generic;
 
 namespace SampleRegression.Predict
 {
     class Program
-    {
-        private static string DataPath = @"D:\GitRepos\MLNET-Approaches\Data\taxi-fare-train.csv";
-        private static string ModelPath = @".\model.zip";
+    {       
+        //Machine Learning model to load and use for predictions
+        private const string MODEL_RELATIVE_PATH = @"model.zip";
+
+        //Dataset used just for testing predictions with some data 
+        private const string DATA_PATH = @"D:\GitRepos\MLNET-Approaches\Data\taxi-fare-test.csv";
+
+        //File to save multiple predictions 
+        private const string PREDICTIONS_PATH = @"D:\GitRepos\MLNET-Approaches\Data\taxi-fare-predictions.csv";
 
         static void Main(string[] args)
         {
             var mlContext = new MLContext();
 
             // 1. Load the model from .ZIP file
-            ITransformer model = LoadModel(mlContext);
+            ITransformer model = LoadModel(mlContext, MODEL_RELATIVE_PATH);
 
             // 2. Test single sample prediction
-            TestSinglePrediction(mlContext, model);
+            TrySinglePrediction(mlContext, model, DATA_PATH);
+
+            // 3. Perform multiple predictions and save them to a file
+            PerformMultiplePredictionsAndSaveToFile(mlContext, model, DATA_PATH, PREDICTIONS_PATH);
+
+            Console.WriteLine("=============== End of process, hit any key to finish ===============");
+            Console.ReadKey();
         }
 
-        private static ITransformer LoadModel(MLContext mlContext)
+        private static ITransformer LoadModel(MLContext mlContext, string modelRelativePath)
         {
             // Loading the model from the .ZIP model file
+            Console.WriteLine($"Loading model from .ZIP file..");
+            Console.WriteLine($" ");
             ITransformer model;
-            using (var stream = new FileStream(ModelPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var stream = new FileStream(modelRelativePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 model = mlContext.Model.Load(stream);
             }
             return model;
         }
 
-        private static void TestSinglePrediction(MLContext mlContext, ITransformer model)
+        private static void TrySinglePrediction(MLContext mlContext, ITransformer model, string dataPath)
         {         
             //Load data to test. Could be any test data. For demonstration purpose train data is used here.
             IDataView dataView = mlContext.Data.ReadFromTextFile<SampleObservation>(
-                                            path: DataPath,
+                                            path: dataPath,
                                             hasHeader: true,
                                             separatorChar: ',');
 
             // Create a single sample from the first row of the dataset
-            // But here you could provide new test data, hardcoded or from the end-user application
+            // IMPORTANT: Here you could provide new test data, hardcoded or from the end-user application
             var sampleForPrediction = mlContext.CreateEnumerable<SampleObservation>(dataView, false).First();
 
-            // Create prediction engine for predicting a single
+            // Create prediction engine needed to perform a single prediction
             var predEngine = model.CreatePredictionEngine<SampleObservation, SamplePrediction>(mlContext);
 
             // Make a single prediction
@@ -62,47 +79,56 @@ namespace SampleRegression.Predict
             Console.WriteLine($"Actual value: {sampleForPrediction.Fare_amount} | Predicted value: {resultprediction.Score}");
             Console.WriteLine($"==================================================");
 
-            Console.WriteLine("=============== End of process, hit any key to finish ===============");
-            Console.ReadKey();
+        }
+
+        public static void PerformMultiplePredictionsAndSaveToFile(MLContext mlContext, ITransformer model, string testDataFile, string predictionsFile)
+        {
+            IDataView testDataView = mlContext.Data.ReadFromTextFile<SampleObservation>(
+                                            path: testDataFile,
+                                            hasHeader: true,
+                                            separatorChar: ',');
+
+            Console.WriteLine($"");
+            Console.WriteLine($"=============== Multiple Predictions  ===============");
+            var predictions = PerformMultiplePredictions(model, testDataView);
+
+            Console.WriteLine(string.Format("Peek a few rows from Predictions: Showing {0} rows", 4));
+            PeekDataViewInConsole(predictions, 4);
+            Console.WriteLine($"");
+
+            using (var fs = new FileStream(predictionsFile, FileMode.Create, FileAccess.Write, FileShare.Write))
+                mlContext.Data.SaveAsText(predictions, fs);
+
+            Console.WriteLine($"Predictions file saved here: {predictionsFile}");
+            Console.WriteLine($"==================================================");
+        }
+
+        public static IDataView PerformMultiplePredictions(ITransformer model, IDataView testDataView)
+        {
+            IDataView predictions = model.Transform(testDataView);
+            return predictions;
+        }
+
+        public static void PeekDataViewInConsole(IDataView dataView, int numberOfRows = 5)
+        {
+            var preViewTransformedData = dataView.Preview(maxRows: numberOfRows);
+
+            foreach (var row in preViewTransformedData.RowView)
+            {
+                var ColumnCollection = row.Values;
+                string lineToPrint = "Row--> ";
+                foreach (KeyValuePair<string, object> column in ColumnCollection)
+                {
+                    lineToPrint += $"| {column.Key}:{column.Value}";
+                }
+                Console.WriteLine(lineToPrint + "\n");
+            }
         }
 
     }
 
-    public class SampleObservation
-    {
-        [ColumnName("vendor_id"), LoadColumn(0)]
-        public string Vendor_id { get; set; }
 
 
-        [ColumnName("rate_code"), LoadColumn(1)]
-        public float Rate_code { get; set; }
 
-
-        [ColumnName("passenger_count"), LoadColumn(2)]
-        public float Passenger_count { get; set; }
-
-
-        [ColumnName("trip_time_in_secs"), LoadColumn(3)]
-        public float Trip_time_in_secs { get; set; }
-
-
-        [ColumnName("trip_distance"), LoadColumn(4)]
-        public float Trip_distance { get; set; }
-
-
-        [ColumnName("payment_type"), LoadColumn(5)]
-        public string Payment_type { get; set; }
-
-
-        [ColumnName("fare_amount"), LoadColumn(6)]
-        public float Fare_amount { get; set; }
-
-
-    }
-
-    public class SamplePrediction
-    {
-        public float Score { get; set; }
-    }
 
 }
