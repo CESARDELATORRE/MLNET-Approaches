@@ -32,8 +32,8 @@ namespace Sample
             var mlContext = new MLContext(seed: 1);
 
             // Load Data
-            IDataView trainingDataView = LoadTrainingData(mlContext, TRAIN_DATA_PATH);
-            IDataView testDataView = LoadTrainingData(mlContext, TEST_DATA_PATH);
+            IDataView trainingDataView = LoadDataset(mlContext, TRAIN_DATA_PATH);
+            IDataView testDataView = LoadDataset(mlContext, TEST_DATA_PATH);
 
             // Train Model
             (ITransformer model, string trainerName) = TrainModel(mlContext, trainingDataView);
@@ -51,24 +51,14 @@ namespace Sample
             Console.ReadKey();
         }
 
-        private static IDataView LoadTrainingData(MLContext mlContext, string trainDataPath)
+        private static IDataView LoadDataset(MLContext mlContext, string datasetPath)
         {
             // Load Training Dataset
-            IDataView trainingDataView = mlContext.Data.ReadFromTextFile<SampleObservation>(
-                                            path: trainDataPath,
+            IDataView dataView = mlContext.Data.ReadFromTextFile<SampleObservation>(
+                                            path: datasetPath,
                                             hasHeader: true,
                                             separatorChar: ',');
-            return trainingDataView;
-        }
-
-        private static IDataView LoadTestData(MLContext mlContext, string testDataPath)
-        {
-            // Load Test Dataset
-            IDataView testDataView = mlContext.Data.ReadFromTextFile<SampleObservation>(
-                                            path: testDataPath,
-                                            hasHeader: true,
-                                            separatorChar: ',');
-            return testDataView;
+            return dataView;
         }
 
         public static (ITransformer model, string trainerName) TrainModel(MLContext mlContext, IDataView trainingDataView)
