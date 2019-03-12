@@ -14,6 +14,7 @@ using Microsoft.Data.DataView;
 using Microsoft.ML.LightGBM;
 using Microsoft.ML.Transforms.Categorical;
 using SampleRegression.Common;
+using SampleRegression.Common.DataModels;
 
 namespace Sample
 {
@@ -86,11 +87,10 @@ namespace Sample
             // But here you can try wit any sample data to make a prediction
             var sample = mlContext.CreateEnumerable<SampleObservation>(dataView, false).First();
 
-            // Create prediction engine to perform a single prediction
-            var predEngine = model.CreatePredictionEngine<SampleObservation, SamplePrediction>(mlContext);
-
+            //Create ModelScorer with current available model/transformer and mlContext
+            var mlModel = new MLModelScorer<SampleObservation, SamplePrediction>(model, mlContext);
             // Predict
-            var resultprediction = predEngine.Predict(sample);
+            var resultprediction = mlModel.Predict(sample);
 
             Console.WriteLine($"=============== Single Prediction  ===============");
             Console.WriteLine($"Actual value: {sample.Fare_amount} | Predicted value: {resultprediction.Score}");

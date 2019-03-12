@@ -1,0 +1,31 @@
+
+Machine learning is hard and not accessible to majority of .NET developers. 
+
+With the demo for AutoML and ML.NET we are going to show you next we aim to make ML accessible to .NET developers. 
+
+So, Imagine this ecommerce ASP.NET web site which allows a user to provide feedback. 
+
+Let’s go ahead and enhance this experience using Machine Learning to improve customer experience.
+
+We have classified customer reviews as positive/ negative. Let us explore the data and explain the columns.
+
+.NET CLI is used by ~2M developers to build their applications. We have extended the .NET CLI to add ML capabilities using AutoML. 
+Let us show you this experience.
+
+mlnet new --ml-task binary-classification --dataset "customer-reviews.tsv" --label-column-name Sentiment
+
+Highlight the task and label.
+
+AutoML is searching for the best model. Currently this is running locally. In the future we will use Azure Machine Learning for training, deployment and more.
+
+At the end of the process, AutoML gave me the best model and the code to consume the model.
+
+Add model to app. Highlight code and happiness scale.
+
+lets run the app
+
+
+Machine learning is awful
+
+Machine learning is exciting with ML.NET
+
