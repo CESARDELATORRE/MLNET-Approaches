@@ -1,52 +1,49 @@
 ﻿using Microsoft.ML;
 using Microsoft.ML.Data;
+using Microsoft.Extensions.ObjectPool;
+using System.IO;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SampleRegression.Common.MLModelScorerObjPool
 {
-    /*
+    
     public class MLModelScorerObjPool<TData, TPrediction>
                     where TData : class
                     where TPrediction : class, new()
     {
-        private readonly MLContext _mlContext;
-        private readonly ITransformer _model;
-        private readonly ObjectPool<PredictionEngine<TData, TPrediction>> _predictionEnginePool;
-        private readonly int _minPredictionEngineObjectsInPool;
-        private readonly int _maxPredictionEngineObjectsInPool;
-        private readonly double _expirationTime;
+        private MLContext _mlContext;
+        private ITransformer _model;
+        private ObjectPool<PredictionEngine<TData, TPrediction>> _predictionEnginePool;
 
-        public int CurrentPredictionEnginePoolSize
-        {
-            get { return _predictionEnginePool.CurrentPoolSize; }
-        }
+        private int _maximumPredictionEngineObjectsRetained;
+
+        //private readonly int _minPredictionEngineObjectsInPool;
+        //private readonly int _maxPredictionEngineObjectsInPool;
+        //private readonly double _expirationTime;
+
+        //public int CurrentPredictionEnginePoolSize
+        //{
+        //    get { return _predictionEnginePool.CurrentPoolSize; }
+        //}
 
         /// <summary>
         /// Constructor with modelFilePathName to load
-        /// </summary>
-        /// <param name="mlContext">MLContext to use</param>
-        /// <param name="modelFilePathName">Model .ZIP file path name</param>
-        /// <param name="minPredictionEngineObjectsInPool">Minimum number of PredictionEngineObjects in pool, as goal. Could be less but eventually it'll tend to that number</param>
-        /// <param name="maxPredictionEngineObjectsInPool">Maximum number of PredictionEngineObjects in pool</param>
-        /// <param name="expirationTime">Expiration Time (mlSecs) of PredictionEngineObject since added to the pool</param>
-        public MLModelEngine(MLContext mlContext, string modelFilePathName, int minPredictionEngineObjectsInPool = 5, int maxPredictionEngineObjectsInPool = 1000, double expirationTime = 30000)
+        public MLModelScorerObjPool(string modelFilePathName, int maximumPredictionEngineObjectsRetained = -1, MLContext mlContext = null)
         {
-            _mlContext = mlContext;
+            //Create or use provided MLContext
+            if (mlContext != null)
+                _mlContext = mlContext;
+            else
+                _mlContext = new MLContext(seed: 1);
 
+            ITransformer model;
             //Load the ProductSalesForecast model from the .ZIP file
             using (var fileStream = File.OpenRead(modelFilePathName))
             {
-                _model = mlContext.Model.Load(fileStream);
+                model = _mlContext.Model.Load(fileStream);
             }
 
-            _minPredictionEngineObjectsInPool = minPredictionEngineObjectsInPool;
-            _maxPredictionEngineObjectsInPool = maxPredictionEngineObjectsInPool;
-            _expirationTime = expirationTime;
-
-            //Create PredictionEngine Object Pool
-            _predictionEnginePool = CreatePredictionEngineObjectPool();
+            Initialize(model, maximumPredictionEngineObjectsRetained);
         }
 
         /// <summary>
@@ -54,16 +51,21 @@ namespace SampleRegression.Common.MLModelScorerObjPool
         /// </summary>
         /// <param name="mlContext">MLContext to use</param>
         /// <param name="model">Model/Transformer to use, already created</param>
-        /// <param name="minPredictionEngineObjectsInPool">Minimum number of PredictionEngineObjects in pool, as goal. Could be less but eventually it'll tend to that number</param>
-        /// <param name="maxPredictionEngineObjectsInPool">Maximum number of PredictionEngineObjects in pool</param>
-        /// <param name="expirationTime">Expiration Time (mlSecs) of PredictionEngineObject since added to the pool</param>
-        public MLModelEngine(MLContext mlContext, ITransformer model, int minPredictionEngineObjectsInPool = 5, int maxPredictionEngineObjectsInPool = 1000, double expirationTime = 30000)
+        public MLModelScorerObjPool(ITransformer model, int maximumPredictionEngineObjectsRetained = -1, MLContext mlContext = null)
         {
-            _mlContext = mlContext;
+            //Create or use provided MLContext
+            if (mlContext != null)
+                _mlContext = mlContext;
+            else
+                _mlContext = new MLContext(seed: 1);
+
+            Initialize(model, maximumPredictionEngineObjectsRetained);
+        }
+
+        private void Initialize(ITransformer model, int maximumPredictionEngineObjectsRetained = -1)
+        {
             _model = model;
-            _minPredictionEngineObjectsInPool = minPredictionEngineObjectsInPool;
-            _maxPredictionEngineObjectsInPool = maxPredictionEngineObjectsInPool;
-            _expirationTime = expirationTime;
+            _maximumPredictionEngineObjectsRetained = maximumPredictionEngineObjectsRetained;
 
             //Create PredictionEngine Object Pool
             _predictionEnginePool = CreatePredictionEngineObjectPool();
@@ -71,29 +73,35 @@ namespace SampleRegression.Common.MLModelScorerObjPool
 
         private ObjectPool<PredictionEngine<TData, TPrediction>> CreatePredictionEngineObjectPool()
         {
-            return new ObjectPool<PredictionEngine<TData, TPrediction>>(objectGenerator: () =>
-            {
-                //Measure PredictionEngine creation
-                var watch = System.Diagnostics.Stopwatch.StartNew();
+            DefaultObjectPoolProvider objPoolProvider = new DefaultObjectPoolProvider();
 
-                //Make PredictionEngine
-                var predEngine = _model.CreatePredictionEngine<TData, TPrediction>(_mlContext);
+            //default maximumRetained is Environment.ProcessorCount * 2, if not explicetely provided
+            if (_maximumPredictionEngineObjectsRetained != -1)
+                objPoolProvider.MaximumRetained = _maximumPredictionEngineObjectsRetained;
 
-                //Stop measuring time
-                watch.Stop();
-                long elapsedMs = watch.ElapsedMilliseconds;
+            var predEnginePolicy = new PooledPredictionEnginePolicy<TData, TPrediction>(_mlContext, _model);
 
-                return predEngine;
-            },
-                                                                          minPoolSize: _minPredictionEngineObjectsInPool,
-                                                                          maxPoolSize: _maxPredictionEngineObjectsInPool,
-                                                                          expirationTime: _expirationTime);
+            //Measure Object Pool of pooled PredictionEngine objects
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+
+            //Create Object Pool with Factory
+            var pool = objPoolProvider.Create<PredictionEngine<TData, TPrediction>>(predEnginePolicy);
+
+            //Create Object Pool with 'new'
+            //var pool2 = new DefaultObjectPool<PredictionEngine<TData, TPrediction>>(policy: predEnginePolicy,
+            //                                                            maximumRetained: 16);
+
+            //Stop measuring time
+            watch.Stop();
+            long elapsedMs = watch.ElapsedMilliseconds;
+
+            return pool;
         }
 
         public TPrediction Predict(TData dataSample)
         {
-            //Get PredictionEngine object from the Object Pool
-            PredictionEngine<TData, TPrediction> predictionEngine = _predictionEnginePool.GetObject();
+            ////Get PredictionEngine object from the Object Pool
+            PredictionEngine<TData, TPrediction> predictionEngine = _predictionEnginePool.Get();
 
             //Measure Predict() execution time
             var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -101,16 +109,16 @@ namespace SampleRegression.Common.MLModelScorerObjPool
             //Predict
             TPrediction prediction = predictionEngine.Predict(dataSample);
 
-            //Stop measuring time
+            ////Stop measuring time
             watch.Stop();
             long elapsedMs = watch.ElapsedMilliseconds;
 
             //Release used PredictionEngine object into the Object Pool
-            _predictionEnginePool.PutObject(predictionEngine);
+            _predictionEnginePool.Return(predictionEngine);
 
             return prediction;
         }
 
     }
-    */
+    
 }

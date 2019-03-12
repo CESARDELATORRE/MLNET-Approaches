@@ -14,6 +14,7 @@ using SampleRegression.Common.DataModels;
 using System.Collections.Generic;
 
 using SampleRegression.Common;
+using SampleRegression.Common.MLModelScorerObjPool;
 
 namespace SampleRegression.Predict
 {
@@ -54,11 +55,16 @@ namespace SampleRegression.Predict
             // IMPORTANT: Here you could provide new test data, hardcoded or from the end-user application
             var sampleForPrediction = mlContext.Data.CreateEnumerable<SampleObservation>(dataView, false).First();
 
-            //============= OBJECT APPROACH ======================================
-            var mlModelEngine = new MLModelScorer<SampleObservation, SamplePrediction>(modelFilePath);
-
+            //============= [ThreadStatic] OBJECT AND APPROACH ======================================
+            //var mlModelScorer = new MLModelScorer<SampleObservation, SamplePrediction>(modelFilePath);
             // Make a single prediction
-            var resultprediction = mlModelEngine.Predict(sampleForPrediction);
+            //var resultprediction = mlModelScorer.Predict(sampleForPrediction);
+            //====================================================================
+            
+            //============= OBJECT POOLING APPROACH ======================================
+            var mlModelScorer = new MLModelScorerObjPool<SampleObservation, SamplePrediction>(modelFilePath);
+            // Make a single prediction
+            var resultprediction = mlModelScorer.Predict(sampleForPrediction);
             //====================================================================
 
             Console.WriteLine($"=============== Single Prediction  ===============");
@@ -66,7 +72,7 @@ namespace SampleRegression.Predict
             Console.WriteLine($"==================================================");
 
 
-            // (REMOVE PROBABLY)
+            // (REMOVE/DELETE..)
             //============= STATIC CLASS APPROACH ================================
             // Load the model from serialized file
             // MLModelStatic<SampleObservation, SamplePrediction>.LoadMLModelFromFile(modelFilePath);
