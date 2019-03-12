@@ -8,7 +8,6 @@ using System;
 using System.IO;
 using System.Linq;
 using Microsoft.ML;
-using Microsoft.ML.Core.Data;
 using Microsoft.ML.Data;
 using Microsoft.Data.DataView;
 using SampleRegression.Common.DataModels;
@@ -46,14 +45,14 @@ namespace SampleRegression.Predict
             MLContext mlContext = new MLContext(seed:1);
 
             //Load data to test. Could be any test data. For demonstration purpose train data is used here.
-            IDataView dataView = mlContext.Data.ReadFromTextFile<SampleObservation>(
+            IDataView dataView = mlContext.Data.LoadFromTextFile<SampleObservation>(
                                             path: datasetFilePath,
                                             hasHeader: true,
                                             separatorChar: ',');
 
             // Create a single sample from the first row of the dataset
             // IMPORTANT: Here you could provide new test data, hardcoded or from the end-user application
-            var sampleForPrediction = mlContext.CreateEnumerable<SampleObservation>(dataView, false).First();
+            var sampleForPrediction = mlContext.Data.CreateEnumerable<SampleObservation>(dataView, false).First();
 
             //============= OBJECT APPROACH ======================================
             var mlModelEngine = new MLModelScorer<SampleObservation, SamplePrediction>(modelFilePath);
@@ -81,7 +80,7 @@ namespace SampleRegression.Predict
         {
             MLContext mlContext = new MLContext(seed: 1);
 
-            IDataView testDataView = mlContext.Data.ReadFromTextFile<SampleObservation>(
+            IDataView testDataView = mlContext.Data.LoadFromTextFile<SampleObservation>(
                                             path: testDataFile,
                                             hasHeader: true,
                                             separatorChar: ',');

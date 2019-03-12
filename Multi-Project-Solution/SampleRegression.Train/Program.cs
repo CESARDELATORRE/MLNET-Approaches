@@ -8,13 +8,12 @@ using System;
 using System.IO;
 using System.Linq;
 using Microsoft.ML;
-using Microsoft.ML.Core.Data;
 using Microsoft.ML.Data;
 using Microsoft.Data.DataView;
 using Microsoft.ML.LightGBM;
-using Microsoft.ML.Transforms.Categorical;
 using SampleRegression.Common;
 using SampleRegression.Common.DataModels;
+using Microsoft.ML.Transforms;
 
 namespace Sample
 {
@@ -33,8 +32,8 @@ namespace Sample
             var mlContext = new MLContext(seed: 1);
 
             // Load Data
-            IDataView trainingDataView = mlContext.Data.ReadFromTextFile<SampleObservation>(TRAIN_DATA_PATH, hasHeader: true, separatorChar: ',');
-            IDataView testDataView = mlContext.Data.ReadFromTextFile<SampleObservation>(TEST_DATA_PATH, hasHeader: true, separatorChar: ',');
+            IDataView trainingDataView = mlContext.Data.LoadFromTextFile<SampleObservation>(TRAIN_DATA_PATH, hasHeader: true, separatorChar: ',');
+            IDataView testDataView = mlContext.Data.LoadFromTextFile<SampleObservation>(TEST_DATA_PATH, hasHeader: true, separatorChar: ',');
 
             // Train Model
             (ITransformer model, string trainerName) = TrainModel(mlContext, trainingDataView);
@@ -54,12 +53,12 @@ namespace Sample
 
         public static (ITransformer model, string trainerName) TrainModel(MLContext mlContext, IDataView trainingDataView)
         {
-            // Common data process configuration with pipeline data transformations
-            IEstimator<ITransformer> dataProcessPipeline = mlContext.Transforms.Categorical.OneHotEncoding(new[] { new OneHotEncodingEstimator.ColumnInfo("vendor_id", "vendor_id"), new OneHotEncodingEstimator.ColumnInfo("payment_type", "payment_type") })
+            // Common data process configuration with pipeline data transformations 
+            IEstimator<ITransformer> dataProcessPipeline = mlContext.Transforms.Categorical.OneHotEncoding(new[] { new OneHotEncodingEstimator.ColumnOptions("vendor_id", "vendor_id"), new OneHotEncodingEstimator.ColumnOptions("payment_type", "payment_type") })
                                       .Append(mlContext.Transforms.Concatenate(DefaultColumnNames.Features, new[] { "vendor_id", "payment_type", "rate_code", "passenger_count", "trip_time_in_secs", "trip_distance" }));
 
             // Set the training algorithm
-            IEstimator<ITransformer> trainer = mlContext.Regression.Trainers.LightGbm(new Options() { NumBoostRound = 200, LearningRate = 0.02864992f, NumLeaves = 57, MinDataPerLeaf = 1, UseSoftmax = false, UseCat = false, UseMissing = true, MinDataPerGroup = 100, MaxCatThreshold = 16, CatSmooth = 20, CatL2 = 10, Booster = new Options.TreeBooster.Arguments() { RegLambda = 0.5, RegAlpha = 1 }, LabelColumn = "fare_amount", FeatureColumn = "Features" });
+            IEstimator<ITransformer> trainer = mlContext.Regression.Trainers.LightGbm(new Options() { NumBoostRound = 200, LearningRate = 0.02864992f, NumLeaves = 57, MinDataPerLeaf = 1, UseSoftmax = false, UseCat = false, UseMissing = true, MinDataPerGroup = 100, MaxCatThreshold = 16, CatSmooth = 20, CatL2 = 10, LabelColumn = "fare_amount", FeatureColumn = "Features" });
             IEstimator<ITransformer> trainingPipeline = dataProcessPipeline.Append(trainer);
 
             // Train the model fitting to the training dataset
@@ -85,7 +84,7 @@ namespace Sample
         {
             // Load data to test. Could be any test data. Since this is generated code, a row from a dataView is used
             // But here you can try wit any sample data to make a prediction
-            var sample = mlContext.CreateEnumerable<SampleObservation>(dataView, false).First();
+            var sample = mlContext.Data.CreateEnumerable<SampleObservation>(dataView, false).First();
 
             //Create ModelScorer with current available model/transformer and mlContext
             var mlModel = new MLModelScorer<SampleObservation, SamplePrediction>(model, mlContext);
