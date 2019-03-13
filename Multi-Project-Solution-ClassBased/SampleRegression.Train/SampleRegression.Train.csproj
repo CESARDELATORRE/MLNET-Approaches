@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="ConsoleHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ML" Version="0.11.0" />
+    <PackageReference Include="Microsoft.ML.HalLearners" Version="0.11.0" />
+    <PackageReference Include="Microsoft.ML.LightGBM" Version="0.11.0" /> 
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SampleRegression.Model\SampleRegression.Model.csproj" />
+  </ItemGroup>
+</Project>
