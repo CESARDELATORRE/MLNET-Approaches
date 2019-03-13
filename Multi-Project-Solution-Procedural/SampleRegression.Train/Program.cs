@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.ML;
 using Microsoft.ML.Data;
+using Microsoft.ML.LightGBM;
 using Microsoft.Data.DataView;
 using SampleRegression.Model.DataModels;
 using Microsoft.ML.Transforms;
@@ -27,7 +28,7 @@ namespace Sample
         {
             // Create MLContext to be shared across the model creation workflow objects 
             // Set a random seed for repeatable/deterministic results across multiple trainings.
-            var mlContext = new MLContext(seed: 1);
+            MLContext mlContext = new MLContext(seed: 1);
 
             // Load Data
             IDataView trainingDataView = mlContext.Data.LoadFromTextFile<SampleObservation>(TRAIN_DATA_PATH, hasHeader: true, separatorChar: ',');
@@ -45,7 +46,7 @@ namespace Sample
             // Save model
             SaveModel(mlContext, model, MODEL_RELATIVE_PATH);
 
-            ConsoleHelper.ConsoleWriteHeader("=============== End of process, hit any key to finish ===============");
+            Console.WriteLine("=============== End of process, hit any key to finish ===============");
             Console.ReadKey();
         }
 
@@ -59,11 +60,11 @@ namespace Sample
             IEstimator<ITransformer> trainer = mlContext.Regression.Trainers.LightGbm(new Options() { NumBoostRound = 200, LearningRate = 0.02864992f, NumLeaves = 57, MinDataPerLeaf = 1, UseSoftmax = false, UseCat = false, UseMissing = true, MinDataPerGroup = 100, MaxCatThreshold = 16, CatSmooth = 20, CatL2 = 10, LabelColumn = "fare_amount", FeatureColumn = "Features" });
             IEstimator<ITransformer> trainingPipeline = dataProcessPipeline.Append(trainer);
 
-            ConsoleHelper.ConsoleWriteHeader("=============== Training model ===============");
+            Console.WriteLine("=============== Training model ===============");
 
             ITransformer model = trainingPipeline.Fit(trainingDataView);
 
-            ConsoleHelper.ConsoleWriteHeader("=============== End of training process ===============");
+            Console.WriteLine("=============== End of training process ===============");
             return (model, trainer.ToString());
         }
 
@@ -71,8 +72,8 @@ namespace Sample
         {
             // Evaluate the model and show accuracy stats
             Console.WriteLine("===== Evaluating Model's accuracy with Test data =====");
-            var predictions = model.Transform(testDataView);
-            var metrics = mlContext.Regression.Evaluate(predictions, "fare_amount", "Score");
+            IDataView predictions = model.Transform(testDataView);
+            RegressionMetrics metrics = mlContext.Regression.Evaluate(predictions, "fare_amount", "Score");
             ConsoleHelper.PrintRegressionMetrics(trainerName, metrics);
         }
 
@@ -81,13 +82,13 @@ namespace Sample
         {
             // Load data to test. Could be any test data. Since this is generated code, a row from a dataView is used
             // But here you can try with any sample data to make a prediction
-            var sample = mlContext.Data.CreateEnumerable<SampleObservation>(dataView, false).First();
+            SampleObservation sample = mlContext.Data.CreateEnumerable<SampleObservation>(dataView, false).First();
 
             // Create prediction engine related to the loaded trained model
             var predEngine = model.CreatePredictionEngine<SampleObservation, SamplePrediction>(mlContext);
 
-            //Score
-            var resultprediction = predEngine.Predict(sample);
+            //Single Prediction test
+            SamplePrediction resultprediction = predEngine.Predict(sample);
 
             Console.WriteLine($"=============== Single Prediction  ===============");
             Console.WriteLine($"Actual value: {sample.Fare_amount} | Predicted value: {resultprediction.Score}");

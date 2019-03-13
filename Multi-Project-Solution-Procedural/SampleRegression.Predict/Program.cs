@@ -24,7 +24,7 @@ namespace SampleRegression.Predict
 
         static void Main(string[] args)
         {
-            var mlContext = new MLContext();
+            MLContext mlContext = new MLContext();
 
             // Create sample data to do a single prediction with it 
             SampleObservation sampleData = CreateSampleData(mlContext);
