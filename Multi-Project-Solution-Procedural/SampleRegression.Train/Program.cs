@@ -10,7 +10,6 @@ using System.Linq;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.Data.DataView;
-using Microsoft.ML.LightGBM;
 using SampleRegression.Model.DataModels;
 using Microsoft.ML.Transforms;
 
