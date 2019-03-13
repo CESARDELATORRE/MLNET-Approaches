@@ -81,7 +81,7 @@ namespace Sample
         private static void TrySinglePrediction(MLContext mlContext, ITransformer model, IDataView dataView)
         {
             // Load data to test. Could be any test data. Since this is generated code, a row from a dataView is used
-            // But here you can try wit any sample data to make a prediction
+            // But here you can try with any sample data to make a prediction
             var sample = mlContext.Data.CreateEnumerable<SampleObservation>(dataView, false).First();
 
             // Create prediction engine related to the loaded trained model
