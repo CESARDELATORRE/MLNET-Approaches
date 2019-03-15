@@ -11,8 +11,8 @@ using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.Data.DataView;
 using Microsoft.ML.LightGBM;
-using SampleRegression.Common;
-using SampleRegression.Common.DataModels;
+using SampleRegression.Model;
+using SampleRegression.Model.DataModels;
 using Microsoft.ML.Transforms;
 
 namespace Sample

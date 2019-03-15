@@ -6,7 +6,7 @@
 
 using Microsoft.ML.Data;
 
-namespace SampleRegression.Common.DataModels
+namespace SampleRegression.Model.DataModels
 {
     public class SampleObservation
     {

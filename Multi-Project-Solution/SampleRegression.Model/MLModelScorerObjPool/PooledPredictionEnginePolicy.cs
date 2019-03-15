@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SampleRegression.Common.MLModelScorerObjPool
+namespace SampleRegression.Model.MLModelScorerObjPool
 {
     public class PooledPredictionEnginePolicy<TData, TPrediction> : IPooledObjectPolicy<PredictionEngine<TData, TPrediction>>
                     where TData : class

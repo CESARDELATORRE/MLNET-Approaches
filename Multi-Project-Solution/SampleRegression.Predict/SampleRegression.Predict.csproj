@@ -15,11 +15,6 @@
     <PackageReference Include="Microsoft.ML.LightGBM" Version="0.11.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SampleRegression.Common\SampleRegression.Common.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="model.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\SampleRegression.Model\SampleRegression.Model.csproj" />
   </ItemGroup>
 </Project>

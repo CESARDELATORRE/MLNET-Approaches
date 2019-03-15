@@ -12,9 +12,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace SampleRegression.Common
+namespace SampleRegression.Model
 {
-    public class MLModelScorer<TData, TPrediction>
+    public class MLModelScorer<TData, TPrediction> : IMLModelScorer<TData, TPrediction>
                         where TData : class
                         where TPrediction : class, new()
     {

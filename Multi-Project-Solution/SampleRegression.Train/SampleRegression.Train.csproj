@@ -16,6 +16,6 @@
     <PackageReference Include="Microsoft.ML.LightGBM" Version="0.11.0" /> 
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SampleRegression.Common\SampleRegression.Common.csproj" />
+    <ProjectReference Include="..\SampleRegression.Model\SampleRegression.Model.csproj" />
   </ItemGroup>
 </Project>

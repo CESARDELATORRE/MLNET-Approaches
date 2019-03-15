@@ -9,5 +9,11 @@
     <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="2.2.0" />
     <PackageReference Include="Microsoft.ML" Version="0.11.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="model.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   
 </Project>

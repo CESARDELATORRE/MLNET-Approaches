@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace SampleRegression.Common
+namespace SampleRegression.Model
 {
     public static class MLModelScorerStatic<TData, TPrediction>
                         where TData : class

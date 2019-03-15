@@ -8,20 +8,19 @@ using System;
 using System.IO;
 using System.Linq;
 using Microsoft.ML;
-using Microsoft.ML.Data;
 using Microsoft.Data.DataView;
-using SampleRegression.Common.DataModels;
+using SampleRegression.Model.DataModels;
 using System.Collections.Generic;
 
-using SampleRegression.Common;
-using SampleRegression.Common.MLModelScorerObjPool;
+using SampleRegression.Model;
+using SampleRegression.Model.MLModelScorerObjPool;
 
 namespace SampleRegression.Predict
 {
     class Program
     {       
         //Machine Learning model to load and use for predictions
-        private const string MODEL_RELATIVE_PATH = @"model.zip";
+        private const string MODEL_FILE_PATH = @"model.zip";
 
         //Dataset used just for testing predictions with some data 
         private const string DATA_PATH = @"D:\GitRepos\MLNET-Approaches\Data\taxi-fare-test.csv";
@@ -31,71 +30,46 @@ namespace SampleRegression.Predict
 
         static void Main(string[] args)
         {
+            // Create model scorer object 
+            var mlModelScorer = new MLModelScorer<SampleObservation, SamplePrediction>(MODEL_FILE_PATH);
+
+            // Create model scorer object (Object Pooling based)
+            //var mlModelScorer = new MLModelScorerObjPool<SampleObservation, SamplePrediction>(MODEL_FILE_PATH);
+
             // 1. Test single sample prediction
-            TrySinglePrediction(MODEL_RELATIVE_PATH, DATA_PATH);
+            PredictSingle(mlModelScorer);
 
             // 3. Perform multiple predictions and save them to a file
-            PerformMultiplePredictionsAndSaveToFile(MODEL_RELATIVE_PATH, DATA_PATH, PREDICTIONS_PATH);
+            BulkPredict(mlModelScorer, DATA_PATH, PREDICTIONS_PATH);
 
             Console.WriteLine("=============== End of process, hit any key to finish ===============");
             Console.ReadKey();
         }
 
-        private static void TrySinglePrediction(string modelFilePath, string datasetFilePath)
+        private static void PredictSingle(IMLModelScorer<SampleObservation, SamplePrediction> mlModelScorer)
         {
-            MLContext mlContext = new MLContext(seed:1);
+            // Create sample data to do a single prediction with it 
+            SampleObservation sampleData = CreateSingleDataSample();
 
-            //Load data to test. Could be any test data. For demonstration purpose train data is used here.
-            IDataView dataView = mlContext.Data.LoadFromTextFile<SampleObservation>(
-                                            path: datasetFilePath,
-                                            hasHeader: true,
-                                            separatorChar: ',');
-
-            // Create a single sample from the first row of the dataset
-            // IMPORTANT: Here you could provide new test data, hardcoded or from the end-user application
-            var sampleForPrediction = mlContext.Data.CreateEnumerable<SampleObservation>(dataView, false).First();
-
-            //============= [ThreadStatic] OBJECT AND APPROACH ======================================
-            //var mlModelScorer = new MLModelScorer<SampleObservation, SamplePrediction>(modelFilePath);
             // Make a single prediction
-            //var resultprediction = mlModelScorer.Predict(sampleForPrediction);
-            //====================================================================
-            
-            //============= OBJECT POOLING APPROACH ======================================
-            var mlModelScorer = new MLModelScorerObjPool<SampleObservation, SamplePrediction>(modelFilePath);
-            // Make a single prediction
-            var resultprediction = mlModelScorer.Predict(sampleForPrediction);
-            //====================================================================
-
+            var resultprediction = mlModelScorer.Predict(sampleData);
+           
             Console.WriteLine($"=============== Single Prediction  ===============");
-            Console.WriteLine($"Actual value: {sampleForPrediction.Fare_amount} | Predicted value: {resultprediction.Score}");
+            Console.WriteLine($"Actual value: {sampleData.Fare_amount} | Predicted value: {resultprediction.Score}");
             Console.WriteLine($"==================================================");
-
-
-            // (REMOVE/DELETE..)
-            //============= STATIC CLASS APPROACH ================================
-            // Load the model from serialized file
-            // MLModelStatic<SampleObservation, SamplePrediction>.LoadMLModelFromFile(modelFilePath);
-            //
-            // Make a single prediction
-            // var resultprediction = MLModelStatic<SampleObservation, SamplePrediction>.Predict(sampleForPrediction);
-            //====================================================================
         }
 
-        public static void PerformMultiplePredictionsAndSaveToFile(string modelFilePath, string testDataFile, string predictionsFile)
+        public static void BulkPredict(IMLModelScorer<SampleObservation, SamplePrediction> mlModelScorer,
+                                       string testDataFile, string predictionsFile)
         {
-            MLContext mlContext = new MLContext(seed: 1);
-
-            IDataView testDataView = mlContext.Data.LoadFromTextFile<SampleObservation>(
+            MLContext mlContext = new MLContext();
+            IDataView bulkData = mlContext.Data.LoadFromTextFile<SampleObservation>(
                                             path: testDataFile,
                                             hasHeader: true,
                                             separatorChar: ',');
 
             Console.WriteLine($"=============== Multiple Predictions  ===============");
-
-            var mlModelEngine = new MLModelScorer<SampleObservation, SamplePrediction>(modelFilePath);
-
-            IDataView predictions = mlModelEngine.PredictMany(testDataView);
+            IDataView predictions = mlModelScorer.PredictMany(bulkData);
 
             Console.WriteLine(string.Format("Peek a few rows from Predictions: Showing {0} rows", 4));
             PeekDataViewInConsole(predictions, 4);
@@ -108,7 +82,23 @@ namespace SampleRegression.Predict
             Console.WriteLine($"==================================================");
         }
 
-        
+        // Method to load single row of data to try a single prediction
+        // You can change this code and create your own sample data here (Hardcoded or from any source)
+        private static SampleObservation CreateSingleDataSample()
+        {
+            var mlContext = new MLContext();
+
+            // Read dataset to get a single row for trying a prediction          
+            IDataView dataView = mlContext.Data.LoadFromTextFile<SampleObservation>(
+                                            path: DATA_PATH,
+                                            hasHeader: true,
+                                            separatorChar: ',');
+
+            // Here you could provide new test data, hardcoded or from the end-user application, instead of the row from the file.
+            SampleObservation sampleForPrediction = mlContext.Data.CreateEnumerable<SampleObservation>(dataView, false)
+                                                                        .First();
+            return sampleForPrediction;
+        }
 
         public static void PeekDataViewInConsole(IDataView dataView, int numberOfRows = 5)
         {
@@ -133,3 +123,13 @@ namespace SampleRegression.Predict
 
 
 }
+
+
+// (REMOVE/DELETE..)
+//============= STATIC CLASS APPROACH ================================
+// Load the model from serialized file
+// MLModelStatic<SampleObservation, SamplePrediction>.LoadMLModelFromFile(modelFilePath);
+//
+// Make a single prediction
+// var resultprediction = MLModelStatic<SampleObservation, SamplePrediction>.Predict(sampleForPrediction);
+//====================================================================

@@ -3,28 +3,20 @@ using Microsoft.ML.Data;
 using Microsoft.Extensions.ObjectPool;
 using System.IO;
 using System;
+using Microsoft.Data.DataView;
 
-namespace SampleRegression.Common.MLModelScorerObjPool
+namespace SampleRegression.Model.MLModelScorerObjPool
 {
     
-    public class MLModelScorerObjPool<TData, TPrediction>
+    public class MLModelScorerObjPool<TData, TPrediction> : IMLModelScorer<TData, TPrediction>
                     where TData : class
                     where TPrediction : class, new()
     {
         private MLContext _mlContext;
-        private ITransformer _model;
+        private ITransformer _mlModel;
         private ObjectPool<PredictionEngine<TData, TPrediction>> _predictionEnginePool;
 
         private int _maximumPredictionEngineObjectsRetained;
-
-        //private readonly int _minPredictionEngineObjectsInPool;
-        //private readonly int _maxPredictionEngineObjectsInPool;
-        //private readonly double _expirationTime;
-
-        //public int CurrentPredictionEnginePoolSize
-        //{
-        //    get { return _predictionEnginePool.CurrentPoolSize; }
-        //}
 
         /// <summary>
         /// Constructor with modelFilePathName to load
@@ -64,7 +56,7 @@ namespace SampleRegression.Common.MLModelScorerObjPool
 
         private void Initialize(ITransformer model, int maximumPredictionEngineObjectsRetained = -1)
         {
-            _model = model;
+            _mlModel = model;
             _maximumPredictionEngineObjectsRetained = maximumPredictionEngineObjectsRetained;
 
             //Create PredictionEngine Object Pool
@@ -79,7 +71,7 @@ namespace SampleRegression.Common.MLModelScorerObjPool
             if (_maximumPredictionEngineObjectsRetained != -1)
                 objPoolProvider.MaximumRetained = _maximumPredictionEngineObjectsRetained;
 
-            var predEnginePolicy = new PooledPredictionEnginePolicy<TData, TPrediction>(_mlContext, _model);
+            var predEnginePolicy = new PooledPredictionEnginePolicy<TData, TPrediction>(_mlContext, _mlModel);
 
             //Measure Object Pool of pooled PredictionEngine objects
             var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -103,15 +95,8 @@ namespace SampleRegression.Common.MLModelScorerObjPool
             ////Get PredictionEngine object from the Object Pool
             PredictionEngine<TData, TPrediction> predictionEngine = _predictionEnginePool.Get();
 
-            //Measure Predict() execution time
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-
             //Predict
             TPrediction prediction = predictionEngine.Predict(dataSample);
-
-            ////Stop measuring time
-            watch.Stop();
-            long elapsedMs = watch.ElapsedMilliseconds;
 
             //Release used PredictionEngine object into the Object Pool
             _predictionEnginePool.Return(predictionEngine);
@@ -119,6 +104,23 @@ namespace SampleRegression.Common.MLModelScorerObjPool
             return prediction;
         }
 
+        public IDataView PredictMany(IDataView testDataView)
+        {
+            IDataView predictions = _mlModel.Transform(testDataView);
+            return predictions;
+        }
     }
     
 }
+
+
+// Measuring  Time
+////Measure Predict() execution time
+//var watch = System.Diagnostics.Stopwatch.StartNew();
+
+////Predict
+//TPrediction prediction = predictionEngine.Predict(dataSample);
+
+//////Stop measuring time
+//watch.Stop();
+//            long elapsedMs = watch.ElapsedMilliseconds;
