@@ -53,7 +53,7 @@ namespace SampleRegression.Predict
             // Try a single prediction
             var predictionResult = predEngine.Predict(sampleData);
 
-            Console.WriteLine($"Single Prediction --> Actual value: {sampleData.Fare_amount} | Predicted value: {predictionResult.PredictedFareAmount}");
+            Console.WriteLine($"Single Prediction --> Actual value: {sampleData.Fare_amount} | Predicted value: {predictionResult.Score}");
         }
 
         private static ITransformer LoadModelFromFile(MLContext mlContext, string modelFilePath)

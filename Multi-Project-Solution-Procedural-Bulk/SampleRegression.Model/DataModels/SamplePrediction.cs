@@ -10,7 +10,6 @@ namespace SampleRegression.Model.DataModels
 {
     public class SamplePrediction
     {
-        [ColumnName("Score")]
-        public float PredictedFareAmount { get; set; }
+        public float Score { get; set; }
     }
 }
