@@ -15,10 +15,10 @@ namespace Sample
 {
     public static class ConsoleHelper
     {
-        public static void PrintRegressionMetrics(string name, RegressionMetrics metrics)
+        public static void PrintRegressionMetrics(RegressionMetrics metrics)
         {
             Console.WriteLine($"*************************************************");
-            Console.WriteLine($"*       Metrics for {name} regression model      ");
+            Console.WriteLine($"*       Metrics for regression model      ");
             Console.WriteLine($"*------------------------------------------------");
             Console.WriteLine($"*       LossFn:        {metrics.LossFn:0.##}");
             Console.WriteLine($"*       R2 Score:      {metrics.RSquared:0.##}");
@@ -28,7 +28,7 @@ namespace Sample
             Console.WriteLine($"*************************************************");
         }
 
-        public static void PrintRegressionFoldsAverageMetrics(string algorithmName,
+        public static void PrintRegressionFoldsAverageMetrics(
                                                               (RegressionMetrics metrics,
                                                                ITransformer model,
                                                                IDataView scoredTestData)[] crossValidationResults
@@ -41,7 +41,7 @@ namespace Sample
             var R2 = crossValidationResults.Select(r => r.metrics.RSquared);
 
             Console.WriteLine($"*************************************************************************************************************");
-            Console.WriteLine($"*       Metrics for {algorithmName} Regression model      ");
+            Console.WriteLine($"*       Metrics for Regression model      ");
             Console.WriteLine($"*------------------------------------------------------------------------------------------------------------");
             Console.WriteLine($"*       Average L1 Loss:    {L1.Average():0.###} ");
             Console.WriteLine($"*       Average L2 Loss:    {L2.Average():0.###}  ");

@@ -18,11 +18,11 @@ namespace Sample
 {
     class Program
     {
-        private const string TRAIN_DATA_PATH = @"D:\GitRepos\MLNET-Approaches\Data\taxi-fare-train.csv";
-        private const string TEST_DATA_PATH = @"D:\GitRepos\MLNET-Approaches\Data\taxi-fare-test.csv";
+        private const string TRAIN_DATA_FILEPATH = @"D:\GitRepos\MLNET-Approaches\Data\taxi-fare-train.csv";
+        private const string TEST_DATA_FILEPATH = @"D:\GitRepos\MLNET-Approaches\Data\taxi-fare-test.csv";
 
         // The trained model file will be generated in the app's execution folder
-        private const string MODEL_RELATIVE_PATH = @"../../../../SampleRegression.Model/MLModel.zip";
+        private const string MODEL_FILEPATH = @"../../../../SampleRegression.Model/MLModel.zip";
 
         static void Main(string[] args)
         {
@@ -31,26 +31,23 @@ namespace Sample
             MLContext mlContext = new MLContext(seed: 1);
 
             // Load Data
-            IDataView trainingDataView = mlContext.Data.LoadFromTextFile<SampleObservation>(TRAIN_DATA_PATH, hasHeader: true, separatorChar: ',');
-            IDataView testDataView = mlContext.Data.LoadFromTextFile<SampleObservation>(TEST_DATA_PATH, hasHeader: true, separatorChar: ',');
+            IDataView trainingDataView = mlContext.Data.LoadFromTextFile<SampleObservation>(TRAIN_DATA_FILEPATH, hasHeader: true, separatorChar: ',');
+            IDataView testDataView = mlContext.Data.LoadFromTextFile<SampleObservation>(TEST_DATA_FILEPATH, hasHeader: true, separatorChar: ',');
 
             // Train Model
-            (ITransformer model, string trainerName) = TrainModel(mlContext, trainingDataView);
+            ITransformer mlModel = TrainModel(mlContext, trainingDataView);
 
             // Evaluate quality of Model
-            EvaluateModel(mlContext, model, testDataView, trainerName);
-
-            // (Optional) Try a single prediction (Only one case with first row of DataSet)
-            TrySinglePrediction(mlContext, model, testDataView);
+            EvaluateModel(mlContext, mlModel, testDataView);
 
             // Save model
-            SaveModel(mlContext, model, MODEL_RELATIVE_PATH);
+            SaveModel(mlContext, mlModel, MODEL_FILEPATH);
 
             Console.WriteLine("=============== End of process, hit any key to finish ===============");
             Console.ReadKey();
         }
 
-        public static (ITransformer model, string trainerName) TrainModel(MLContext mlContext, IDataView trainingDataView)
+        public static ITransformer TrainModel(MLContext mlContext, IDataView trainingDataView)
         {
             // Data process configuration with pipeline data transformations 
             IEstimator<ITransformer> dataProcessPipeline = mlContext.Transforms.Categorical.OneHotEncoding(new[] { new OneHotEncodingEstimator.ColumnOptions("vendor_id", "vendor_id"), new OneHotEncodingEstimator.ColumnOptions("payment_type", "payment_type") })
@@ -60,47 +57,29 @@ namespace Sample
             IEstimator<ITransformer> trainer = mlContext.Regression.Trainers.LightGbm(new Options() { NumBoostRound = 200, LearningRate = 0.02864992f, NumLeaves = 57, MinDataPerLeaf = 1, UseSoftmax = false, UseCat = false, UseMissing = true, MinDataPerGroup = 100, MaxCatThreshold = 16, CatSmooth = 20, CatL2 = 10, LabelColumn = "fare_amount", FeatureColumn = "Features" });
             IEstimator<ITransformer> trainingPipeline = dataProcessPipeline.Append(trainer);
 
-            Console.WriteLine("=============== Training model ===============");
+            Console.WriteLine("=============== Training " + trainer.ToString() + " model ===============");
 
             ITransformer model = trainingPipeline.Fit(trainingDataView);
 
             Console.WriteLine("=============== End of training process ===============");
-            return (model, trainer.ToString());
+            return model;
         }
 
-        private static void EvaluateModel(MLContext mlContext, ITransformer model, IDataView testDataView, string trainerName)
+        private static void EvaluateModel(MLContext mlContext, ITransformer mlModel, IDataView testDataView)
         {
             // Evaluate the model and show accuracy stats
             Console.WriteLine("===== Evaluating Model's accuracy with Test data =====");
-            IDataView predictions = model.Transform(testDataView);
+            IDataView predictions = mlModel.Transform(testDataView);
             RegressionMetrics metrics = mlContext.Regression.Evaluate(predictions, "fare_amount", "Score");
-            ConsoleHelper.PrintRegressionMetrics(trainerName, metrics);
+            ConsoleHelper.PrintRegressionMetrics(metrics);
         }
 
-        // (OPTIONAL) Try/test a single prediction with the trained model and any test data
-        private static void TrySinglePrediction(MLContext mlContext, ITransformer model, IDataView dataView)
-        {
-            // Load data to test. Could be any test data. Since this is generated code, a row from a dataView is used
-            // But here you can try with any sample data to make a prediction
-            SampleObservation sample = mlContext.Data.CreateEnumerable<SampleObservation>(dataView, false).First();
-
-            // Create prediction engine related to the loaded trained model
-            var predEngine = model.CreatePredictionEngine<SampleObservation, SamplePrediction>(mlContext);
-
-            //Single Prediction test
-            SamplePrediction resultprediction = predEngine.Predict(sample);
-
-            Console.WriteLine($"=============== Single Prediction  ===============");
-            Console.WriteLine($"Actual value: {sample.Fare_amount} | Predicted value: {resultprediction.Score}");
-            Console.WriteLine($"==================================================");
-        }
-
-        private static void SaveModel(MLContext mlContext, ITransformer model, string modelRelativePath)
+        private static void SaveModel(MLContext mlContext, ITransformer mlModel, string modelRelativePath)
         {
             // Save/persist the trained model to a .ZIP file
             Console.WriteLine($"=============== Saving the model  ===============");
             using (var fs = new FileStream(GetAbsolutePath(modelRelativePath), FileMode.Create, FileAccess.Write, FileShare.Write))
-                mlContext.Model.Save(model, fs);
+                mlContext.Model.Save(mlModel, fs);
 
             Console.WriteLine("The model is saved to {0}", GetAbsolutePath(modelRelativePath));
         }

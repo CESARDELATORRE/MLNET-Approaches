@@ -32,6 +32,20 @@ namespace SampleRegression.Predict
         {
             MLContext mlContext = new MLContext();
 
+            ITransformer mlModel = LoadModelFromFile(mlContext);
+
+            // Test a single sample prediction
+            PredictSingle(mlContext, mlModel, DATA_PATH);
+
+            // Perform multiple predictions and save them to a file
+            BulkPredict(mlContext, mlModel, DATA_PATH, PREDICTIONS_PATH);
+
+            Console.WriteLine("=============== End of process, hit any key to finish ===============");
+            Console.ReadKey();
+        }
+
+        private static ITransformer LoadModelFromFile(MLContext mlContext)
+        {
             // Load the ML model from .zip file
             ITransformer mlModel;
             using (var stream = new FileStream(MODEL_RELATIVE_PATH, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -39,14 +53,7 @@ namespace SampleRegression.Predict
                 mlModel = mlContext.Model.Load(stream);
             }
 
-            // 1. Test single sample prediction
-            PredictSingle(mlContext, mlModel, DATA_PATH);
-
-            // 2. Perform multiple predictions and save them to a file
-            BulkPredict(mlContext, mlModel, DATA_PATH, PREDICTIONS_PATH);
-
-            Console.WriteLine("=============== End of process, hit any key to finish ===============");
-            Console.ReadKey();
+            return mlModel;
         }
 
         private static void PredictSingle(MLContext mlContext, ITransformer mlModel, string datasetFilePath)
@@ -106,11 +113,18 @@ namespace SampleRegression.Predict
             return sampleForPrediction;
         }
 
-        public static void PeekDataViewInConsole(IDataView dataView, int numberOfRows = 5)
+        public static void PeekDataViewInConsole(MLContext mlContext, IDataView dataView, int numberOfRows = 5)
         {
-            var preViewTransformedData = dataView.Preview(maxRows: numberOfRows);
+            // Convert to an enumerable of user-defined type. 
+            var dataView = mlContext.Data.CreateEnumerable<SampleObservation>(dataView, reuseRowObject: false)
+                                            // Take a few rows
+                                            .Take(numberOfRows)
+                                            .ToList();
 
-            foreach (var row in preViewTransformedData.RowView)
+            //// print to console
+            //data.ForEach(row => { row.PrintToConsole(); });
+
+            foreach (var row in dataView.RowView)
             {
                 var ColumnCollection = row.Values;
                 string lineToPrint = "Row--> ";
@@ -120,7 +134,21 @@ namespace SampleRegression.Predict
                 }
                 Console.WriteLine(lineToPrint + "\n");
             }
+
+            //var preViewTransformedData = dataView.Preview(maxRows: numberOfRows);
+
+            //foreach (var row in preViewTransformedData.RowView)
+            //{
+            //    var ColumnCollection = row.Values;
+            //    string lineToPrint = "Row--> ";
+            //    foreach (KeyValuePair<string, object> column in ColumnCollection)
+            //    {
+            //        lineToPrint += $"| {column.Key}:{column.Value}";
+            //    }
+            //    Console.WriteLine(lineToPrint + "\n");
+            //}
         }
     }
 }
+
 */
