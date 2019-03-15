@@ -22,7 +22,7 @@ namespace SampleRegression.Model.MLModelScorerObjPool
         /// Constructor with modelFilePathName to load
         public MLModelEngineObjPool(string modelFilePathName, int maximumPredictionEngineObjectsRetained = -1, MLContext mlContext = null)
         {
-            //Create or use provided MLContext
+            //Create or use provided MLContext (This dependency would be injected if using DI)
             if (mlContext != null)
                 _mlContext = mlContext;
             else
@@ -45,7 +45,7 @@ namespace SampleRegression.Model.MLModelScorerObjPool
         /// <param name="model">Model/Transformer to use, already created</param>
         public MLModelEngineObjPool(ITransformer model, int maximumPredictionEngineObjectsRetained = -1, MLContext mlContext = null)
         {
-            //Create or use provided MLContext
+            //Create or use provided MLContext (This dependency would be injected if using DI)
             if (mlContext != null)
                 _mlContext = mlContext;
             else
@@ -65,12 +65,14 @@ namespace SampleRegression.Model.MLModelScorerObjPool
 
         private ObjectPool<PredictionEngine<TData, TPrediction>> CreatePredictionEngineObjectPool()
         {
+            //(This dependency would be injected if using DI)
             DefaultObjectPoolProvider objPoolProvider = new DefaultObjectPoolProvider();
 
             //default maximumRetained is Environment.ProcessorCount * 2, if not explicetely provided
             if (_maximumPredictionEngineObjectsRetained != -1)
                 objPoolProvider.MaximumRetained = _maximumPredictionEngineObjectsRetained;
 
+            //(This dependency would be injected if using DI)
             var predEnginePolicy = new PooledPredictionEnginePolicy<TData, TPrediction>(_mlContext, _mlModel);
 
             //Create Object Pool with Factory

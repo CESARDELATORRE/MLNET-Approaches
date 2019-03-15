@@ -30,11 +30,11 @@ namespace SampleRegression.Predict
 
         static void Main(string[] args)
         {
-            // Create model scorer object 
-            //var mlModelEngine = new MLModelEngine<SampleObservation, SamplePrediction>(MODEL_FILE_PATH);
-
             // Create model scorer object (Object Pooling based)
             var mlModelEngine = new MLModelEngineObjPool<SampleObservation, SamplePrediction>(MODEL_FILE_PATH);
+
+            // Create model engine (plain class with [ThreadStatic] Prediction Engine) 
+            //var mlModelEngine = new MLModelEngine<SampleObservation, SamplePrediction>(MODEL_FILE_PATH);
 
             // 1. Test single sample prediction
             PredictSingle(mlModelEngine);
