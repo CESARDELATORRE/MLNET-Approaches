@@ -40,7 +40,12 @@ namespace SampleRegression.Model
             get => _mlModel;
         }
 
-        //Constructor to be used if loading model from serialized .ZIP file
+        public MLContext MLContext
+        {
+            get => _mlContext;
+        }
+
+        //Constructor loading model from serialized .ZIP file
         public SampleRegressionModelScorer(string modelFilePathName, MLContext mlContext = null)
         {
             //Create or use provided MLContext
