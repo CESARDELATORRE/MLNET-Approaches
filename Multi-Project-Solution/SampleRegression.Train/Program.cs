@@ -87,7 +87,7 @@ namespace Sample
             var sample = mlContext.Data.CreateEnumerable<SampleObservation>(dataView, false).First();
 
             //Create ModelScorer with current available model/transformer and mlContext
-            var mlModel = new MLModelScorer<SampleObservation, SamplePrediction>(model, mlContext);
+            var mlModel = new MLModelEngine<SampleObservation, SamplePrediction>(model, mlContext);
             // Predict
             var resultprediction = mlModel.Predict(sample);
 

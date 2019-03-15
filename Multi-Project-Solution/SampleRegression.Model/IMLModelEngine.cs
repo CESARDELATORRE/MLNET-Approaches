@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SampleRegression.Model
 {
-    public interface IMLModelScorer<TData, TPrediction>
+    public interface IMLModelEngine<TData, TPrediction>
                     where TData : class
                     where TPrediction : class
 

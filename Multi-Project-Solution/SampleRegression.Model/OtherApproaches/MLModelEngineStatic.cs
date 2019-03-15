@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SampleRegression.Model
 {
-    public static class MLModelScorerStatic<TData, TPrediction>
+    public static class MLModelEngineStatic<TData, TPrediction>
                         where TData : class
                         where TPrediction : class, new()
     {

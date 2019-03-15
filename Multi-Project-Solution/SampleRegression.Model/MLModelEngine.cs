@@ -14,7 +14,7 @@ using System.Text;
 
 namespace SampleRegression.Model
 {
-    public class MLModelScorer<TData, TPrediction> : IMLModelScorer<TData, TPrediction>
+    public class MLModelEngine<TData, TPrediction> : IMLModelEngine<TData, TPrediction>
                         where TData : class
                         where TPrediction : class, new()
     {
@@ -38,7 +38,7 @@ namespace SampleRegression.Model
         }
 
         //Constructor to be used if loading model from serialized .ZIP file
-        public MLModelScorer(string modelFilePathName, MLContext mlContext = null)
+        public MLModelEngine(string modelFilePathName, MLContext mlContext = null)
         {
             Guard.Against.NullOrEmpty(modelFilePathName, nameof(modelFilePathName));
 
@@ -56,7 +56,7 @@ namespace SampleRegression.Model
         }
 
         //Constructor to be used if model (ITransformer) and MLContext are already available
-        public MLModelScorer(ITransformer mlModel, MLContext mlContext)
+        public MLModelEngine(ITransformer mlModel, MLContext mlContext)
         {
             Guard.Against.Null(mlModel, nameof(mlModel));
             Guard.Against.Null(mlContext, nameof(mlContext));
@@ -85,33 +85,4 @@ namespace SampleRegression.Model
             return predictions;
         }
     }
-
-        /* DELETE 
-        
-        // FROM BLAZOR SAMPLE...
-         
-        public class Engine
-        {
-            static MLContext context = new MLContext();
-            static ITransformer model
-                = context.Model.Load(File.Open("model.zip", FileMode.Open));
-
-            [ThreadStatic]
-            static PredictionEngine<SourceData, Prediction> t_engine;
-
-            public static PredictionEngine<SourceData, Prediction> GetPredictionEngine(string modelfile)  //(CDLTLL) Why modelfile path here?
-            {
-                if (t_engine != null)
-                    return t_engine;
-
-                return t_engine = model.CreatePredictionEngine<SourceData, Prediction>(context);
-            }
-
-            public static float CalculatePercentage(double value)
-            {
-                return 100 * (1.0f / (1.0f + (float)Math.Exp(-value)));
-            }
-        }
-        */
-
-    }
+}

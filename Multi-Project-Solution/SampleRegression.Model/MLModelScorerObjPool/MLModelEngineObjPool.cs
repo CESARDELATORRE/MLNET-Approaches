@@ -8,7 +8,7 @@ using Microsoft.Data.DataView;
 namespace SampleRegression.Model.MLModelScorerObjPool
 {
     
-    public class MLModelScorerObjPool<TData, TPrediction> : IMLModelScorer<TData, TPrediction>
+    public class MLModelEngineObjPool<TData, TPrediction> : IMLModelEngine<TData, TPrediction>
                     where TData : class
                     where TPrediction : class, new()
     {
@@ -20,7 +20,7 @@ namespace SampleRegression.Model.MLModelScorerObjPool
 
         /// <summary>
         /// Constructor with modelFilePathName to load
-        public MLModelScorerObjPool(string modelFilePathName, int maximumPredictionEngineObjectsRetained = -1, MLContext mlContext = null)
+        public MLModelEngineObjPool(string modelFilePathName, int maximumPredictionEngineObjectsRetained = -1, MLContext mlContext = null)
         {
             //Create or use provided MLContext
             if (mlContext != null)
@@ -43,7 +43,7 @@ namespace SampleRegression.Model.MLModelScorerObjPool
         /// </summary>
         /// <param name="mlContext">MLContext to use</param>
         /// <param name="model">Model/Transformer to use, already created</param>
-        public MLModelScorerObjPool(ITransformer model, int maximumPredictionEngineObjectsRetained = -1, MLContext mlContext = null)
+        public MLModelEngineObjPool(ITransformer model, int maximumPredictionEngineObjectsRetained = -1, MLContext mlContext = null)
         {
             //Create or use provided MLContext
             if (mlContext != null)
@@ -73,19 +73,12 @@ namespace SampleRegression.Model.MLModelScorerObjPool
 
             var predEnginePolicy = new PooledPredictionEnginePolicy<TData, TPrediction>(_mlContext, _mlModel);
 
-            //Measure Object Pool of pooled PredictionEngine objects
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-
             //Create Object Pool with Factory
             var pool = objPoolProvider.Create<PredictionEngine<TData, TPrediction>>(predEnginePolicy);
 
             //Create Object Pool with 'new'
             //var pool2 = new DefaultObjectPool<PredictionEngine<TData, TPrediction>>(policy: predEnginePolicy,
             //                                                            maximumRetained: 16);
-
-            //Stop measuring time
-            watch.Stop();
-            long elapsedMs = watch.ElapsedMilliseconds;
 
             return pool;
         }

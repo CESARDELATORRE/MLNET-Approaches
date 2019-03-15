@@ -31,22 +31,22 @@ namespace SampleRegression.Predict
         static void Main(string[] args)
         {
             // Create model scorer object 
-            var mlModelScorer = new MLModelScorer<SampleObservation, SamplePrediction>(MODEL_FILE_PATH);
+            //var mlModelEngine = new MLModelEngine<SampleObservation, SamplePrediction>(MODEL_FILE_PATH);
 
             // Create model scorer object (Object Pooling based)
-            //var mlModelScorer = new MLModelScorerObjPool<SampleObservation, SamplePrediction>(MODEL_FILE_PATH);
+            var mlModelEngine = new MLModelEngineObjPool<SampleObservation, SamplePrediction>(MODEL_FILE_PATH);
 
             // 1. Test single sample prediction
-            PredictSingle(mlModelScorer);
+            PredictSingle(mlModelEngine);
 
             // 3. Perform multiple predictions and save them to a file
-            BulkPredict(mlModelScorer, DATA_PATH, PREDICTIONS_PATH);
+            BulkPredict(mlModelEngine, DATA_PATH, PREDICTIONS_PATH);
 
             Console.WriteLine("=============== End of process, hit any key to finish ===============");
             Console.ReadKey();
         }
 
-        private static void PredictSingle(IMLModelScorer<SampleObservation, SamplePrediction> mlModelScorer)
+        private static void PredictSingle(IMLModelEngine<SampleObservation, SamplePrediction> mlModelScorer)
         {
             // Create sample data to do a single prediction with it 
             SampleObservation sampleData = CreateSingleDataSample();
@@ -59,7 +59,7 @@ namespace SampleRegression.Predict
             Console.WriteLine($"==================================================");
         }
 
-        public static void BulkPredict(IMLModelScorer<SampleObservation, SamplePrediction> mlModelScorer,
+        public static void BulkPredict(IMLModelEngine<SampleObservation, SamplePrediction> mlModelScorer,
                                        string testDataFile, string predictionsFile)
         {
             MLContext mlContext = new MLContext();
