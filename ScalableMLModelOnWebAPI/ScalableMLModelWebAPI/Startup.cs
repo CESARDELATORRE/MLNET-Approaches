@@ -38,42 +38,40 @@ namespace ScalableMLModelWebAPI
                 return new MLContext(seed: 1);
             });
 
+            // OPTION A:
             // Using MLModelEngine ObjPooling implementation
             //
             services.AddSingleton<IMLModelEngine<SampleObservation, SamplePrediction>,
-                                  MLModelEngineObjPooling<SampleObservation, SamplePrediction>>((ctx) =>
-            {
-                MLContext mlContext = ctx.GetRequiredService<MLContext>();
+                                  MLModelEngineObjPooling<SampleObservation, SamplePrediction>>();
 
-                string modelFilePathName = $"MLModel/SentimentAnalysisModel.zip";
-                return new MLModelEngineObjPooling<SampleObservation, SamplePrediction>(mlContext,
-                                                                                        modelFilePathName);
-            });
 
+            // OPTION B:
             // Using MLModelEngine ThreadStatic implementation
             //
             //services.AddSingleton<IMLModelEngine<SampleObservation, SamplePrediction>,
-            //                      MLModelEngineThreadStatic<SampleObservation, SamplePrediction>>((ctx) =>
-            //{
-            //    MLContext mlContext = ctx.GetRequiredService<MLContext>();
-
-            //    string modelFilePathName = $"MLModel/SentimentAnalysisModel.zip";
-            //    return new MLModelEngineThreadStatic<SampleObservation, SamplePrediction>(mlContext,
-            //                                                                              modelFilePathName);
-            //});
+            //          MLModelEngineThreadStatic<SampleObservation, SamplePrediction>>();
 
 
+            // OPTION C:
             // Using MLModelEngine Simple implementation (Create Prediction Engine for every call)
             //
             //services.AddSingleton<IMLModelEngine<SampleObservation, SamplePrediction>,
-            //                      MLModelEngineSimple<SampleObservation, SamplePrediction>>((ctx) =>
+            //          MLModelEngineSimple<SampleObservation, SamplePrediction>>();
+
+
+
+            // Using 'Factory code' when registering. Not needed in current implementation
+            //
+            //services.AddSingleton<IMLModelEngine<SampleObservation, SamplePrediction>,
+            //                      MLModelEngineObjPooling<SampleObservation, SamplePrediction>>((ctx) =>
             //{
             //    MLContext mlContext = ctx.GetRequiredService<MLContext>();
+            //    string modelFilePathName = Configuration["MLModelFilePath"];
 
-            //    string modelFilePathName = $"MLModel/SentimentAnalysisModel.zip";
-            //    return new MLModelEngineSimple<SampleObservation, SamplePrediction>(mlContext,
-            //                                                                        modelFilePathName);
+            //    return new MLModelEngineObjPooling<SampleObservation, SamplePrediction>(mlContext,
+            //                                                                            modelFilePathName);
             //});
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

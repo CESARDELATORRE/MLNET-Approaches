@@ -15,15 +15,11 @@ namespace ScalableMLModelWebAPI.Controllers
     [ApiController]
     public class PredictorController : ControllerBase
     {
-        private readonly AppSettings _appSettings;
         private readonly IMLModelEngine<SampleObservation, SamplePrediction> _modelEngine;
 
-        public PredictorController(IOptionsSnapshot<AppSettings> appSettings,
-                                               IMLModelEngine<SampleObservation, SamplePrediction> modelEngine)
+        public PredictorController(IMLModelEngine<SampleObservation, SamplePrediction> modelEngine)
         {
-            _appSettings = appSettings.Value;
-
-            // Get injected ML Model Engine for scoring
+            // Get the ML Model Engine injected, for scoring
             _modelEngine = modelEngine;
         }
 

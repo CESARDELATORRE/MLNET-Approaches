@@ -4,6 +4,9 @@ using Microsoft.Extensions.ObjectPool;
 using System.IO;
 using System;
 using Microsoft.Data.DataView;
+using Microsoft.Extensions.Options;
+using ScalableMLModelWebAPI.Settings;
+using Microsoft.Extensions.Configuration;
 
 namespace ScalableMLModelWebAPI.MLModel
 {   
@@ -11,6 +14,7 @@ namespace ScalableMLModelWebAPI.MLModel
                     where TData : class
                     where TPrediction : class, new()
     {
+        private readonly IConfiguration _configuration;
         private MLContext _mlContext;
         private ITransformer _mlModel;
         private ObjectPool<PredictionEngine<TData, TPrediction>> _predictionEnginePool;
@@ -18,40 +22,24 @@ namespace ScalableMLModelWebAPI.MLModel
         private int _maximumPredictionEngineObjectsRetained;
 
         /// <summary>
-        /// Constructor with modelFilePathName to load
-        public MLModelEngineObjPooling(MLContext mlContext, string modelFilePathName, int maximumPredictionEngineObjectsRetained = -1)
+        /// Constructor with IConfiguration and MLContext as dependency
+        public MLModelEngineObjPooling(IConfiguration config, MLContext mlContext, int maximumPredictionEngineObjectsRetained = -1)
         {
+            _configuration = config;
+
             //Use injected singleton MLContext 
             _mlContext = mlContext;
 
-            ITransformer model;
             //Load the ProductSalesForecast model from the .ZIP file
+            string modelFilePathName = _configuration["MLModel:MLModelFilePath"];
             using (var fileStream = File.OpenRead(modelFilePathName))
-                model = _mlContext.Model.Load(fileStream);
+                _mlModel = _mlContext.Model.Load(fileStream);
 
-            Initialize(model, maximumPredictionEngineObjectsRetained);
-        }
-
-        /// <summary>
-        /// Constructor with ITransformer model already created
-        /// </summary>
-        /// <param name="mlContext">MLContext to use</param>
-        /// <param name="model">Model/Transformer to use, already created</param>
-        public MLModelEngineObjPooling(MLContext mlContext, ITransformer model, int maximumPredictionEngineObjectsRetained = -1)
-        {
-            //Use injected singleton MLContext 
-            _mlContext = mlContext;
-
-            Initialize(model, maximumPredictionEngineObjectsRetained);
-        }
-
-        private void Initialize(ITransformer model, int maximumPredictionEngineObjectsRetained = -1)
-        {
-            _mlModel = model;
             _maximumPredictionEngineObjectsRetained = maximumPredictionEngineObjectsRetained;
 
             //Create PredictionEngine Object Pool
             _predictionEnginePool = CreatePredictionEngineObjectPool();
+
         }
 
         private ObjectPool<PredictionEngine<TData, TPrediction>> CreatePredictionEngineObjectPool()
@@ -67,7 +55,7 @@ namespace ScalableMLModelWebAPI.MLModel
             //Create Object Pool with Factory
             var pool = objPoolProvider.Create<PredictionEngine<TData, TPrediction>>(predEnginePolicy);
 
-            //Create Object Pool with 'new'
+            //Create Object Pool with 'new' --> QUESTION: Why two possible ways for creating a Pool?
             //var pool2 = new DefaultObjectPool<PredictionEngine<TData, TPrediction>>(policy: predEnginePolicy,
             //                                                            maximumRetained: 16);
 
