@@ -1,0 +1,18 @@
+2019-03-18 21:34:34.2788|INFO|Microsoft.ML.CLI.Commands.New.NewCommand|Inferring Columns ...
+2019-03-18 21:34:35.1511|INFO|Microsoft.ML.CLI.Commands.New.NewCommand|Creating Data loader ...
+2019-03-18 21:34:35.1639|INFO|Microsoft.ML.CLI.Commands.New.NewCommand|Loading data ...
+2019-03-18 21:34:35.1639|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|*************************************************
+2019-03-18 21:34:35.1872|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|*       Metrics for Binary Classification models     
+2019-03-18 21:34:35.2003|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|*------------------------------------------------
+2019-03-18 21:34:35.2147|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|    Trainer                            Accuracy  Auc     
+2019-03-18 21:34:56.0466|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|1   AveragedPerceptronBinary           0.9508    0.96    
+2019-03-18 21:35:42.9356|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|2   SdcaBinary                         0.9533    0.97    
+2019-03-18 21:36:35.0723|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|3   LightGbmBinary                     0.9501    0.96    
+2019-03-18 21:36:45.7445|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|4   SymSgdBinary                       0.9513    0.96    
+2019-03-18 21:36:53.3991|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|5   LinearSvmBinary                    0.9440    0.96    
+2019-03-18 21:38:14.6199|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|6   FastTreeBinary                     0.9486    0.96    
+2019-03-18 21:38:29.7216|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|7   LogisticRegressionBinary           0.9550    0.97    
+2019-03-18 21:39:56.1688|INFO|Microsoft.ML.CLI.Utilities.ConsolePrinter|8   FastForestBinary                   0.9342    0.90    
+2019-03-18 21:39:56.1809|INFO|Microsoft.ML.CLI.Commands.New.NewCommand|Retrieving best pipeline ...
+2019-03-18 21:39:56.2011|INFO|Microsoft.ML.CLI.Commands.New.NewCommand|Saving the best model ...
+2019-03-18 21:40:01.0236|INFO|Microsoft.ML.CLI.Commands.New.NewCommand|Generating a console project for the best pipeline at location  : D:\MVPDemo\SampleBinaryClassification
