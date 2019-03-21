@@ -29,10 +29,10 @@ namespace Scalable.WebAPI
             // Using MLModelEngine ObjPooling implementation
             //
             services.AddSingleton<IMLModelEngine<SampleObservation, SamplePrediction>,
-                                  MLModelEngineObjPooling<SampleObservation, SamplePrediction>>((ctx) =>
+                                  MLModelEngineObjPool<SampleObservation, SamplePrediction>>((ctx) =>
                                   {
                                       string modelFilePathName = GetAbsolutePath(Configuration["MLModel:MLModelFilePath"]);
-                                      return new MLModelEngineObjPooling<SampleObservation, SamplePrediction>(modelFilePathName);
+                                      return new MLModelEngineObjPool<SampleObservation, SamplePrediction>(modelFilePathName);
                                   });
 
 

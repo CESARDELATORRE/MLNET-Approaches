@@ -5,7 +5,7 @@ using Microsoft.Data.DataView;
 
 namespace Scalable.Model.Engine
 {   
-    public class MLModelEngineObjPooling<TData, TPrediction> : IMLModelEngine<TData, TPrediction>
+    public class MLModelEngineObjPool<TData, TPrediction> : IMLModelEngine<TData, TPrediction>
                     where TData : class
                     where TPrediction : class, new()
     {
@@ -16,11 +16,20 @@ namespace Scalable.Model.Engine
         private int _maxObjectsRetained;
 
         /// <summary>
-        /// Constructor with modelFilePathName to load
-        public MLModelEngineObjPooling(string modelFilePathName, int maxObjectsRetained = -1)
+        /// Exposing the ML model allowing additional ITransformer operations such as Bulk predictions', etc.
+        /// </summary>
+        public ITransformer MLModel
+        {
+            get => _mlModel;
+        }
+
+        /// <summary>
+        /// Constructor with modelFilePathName to load from
+        /// </summary>
+        public MLModelEngineObjPool(string modelFilePathName, int maxObjectsRetained = -1)
         {
             //Create the MLContext object to use under the scope of this class 
-            _mlContext = new MLContext(seed: 1);
+            _mlContext = new MLContext();
 
             //Load the ProductSalesForecast model from the .ZIP file
             using (var fileStream = File.OpenRead(modelFilePathName))
@@ -46,7 +55,7 @@ namespace Scalable.Model.Engine
             }
             else
             {
-                //default maximumRetained is Environment.ProcessorCount * 2, if not explicetely provided
+                //default maximumRetained is Environment.ProcessorCount * 2, if not explicitly provided
                 pool = new DefaultObjectPool<PredictionEngine<TData, TPrediction>>(predEnginePolicy);
             }
 
@@ -55,23 +64,22 @@ namespace Scalable.Model.Engine
 
         public TPrediction Predict(TData dataSample)
         {
-            ////Get PredictionEngine object from the Object Pool
+            //Get PredictionEngine object from the Object Pool
             PredictionEngine<TData, TPrediction> predictionEngine = _predictionEnginePool.Get();
 
-            //Predict
-            TPrediction prediction = predictionEngine.Predict(dataSample);
-
-            //Release used PredictionEngine object into the Object Pool
-            _predictionEnginePool.Return(predictionEngine);
-
-            return prediction;
+            try
+            {
+                //Predict
+                TPrediction prediction = predictionEngine.Predict(dataSample);
+                return prediction;
+            }
+            finally
+            {
+                //Release used PredictionEngine object into the Object Pool
+                _predictionEnginePool.Return(predictionEngine);
+            }
         }
 
-        public IDataView PredictMany(IDataView testDataView)
-        {
-            IDataView predictions = _mlModel.Transform(testDataView);
-            return predictions;
-        }
     }
     
 }

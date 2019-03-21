@@ -8,7 +8,5 @@ namespace Scalable.Model.Engine
 
     {
         TPrediction Predict(TData dataSample);
-
-        IDataView PredictMany(IDataView testDataView);
     }
 }
