@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.DataView;
+using Microsoft.ML;
 
 namespace Scalable.Model.Engine
 {
@@ -7,6 +8,11 @@ namespace Scalable.Model.Engine
                     where TPrediction : class
 
     {
+        ITransformer MLModel
+        {
+            get;
+        }
+
         TPrediction Predict(TData dataSample);
     }
 }

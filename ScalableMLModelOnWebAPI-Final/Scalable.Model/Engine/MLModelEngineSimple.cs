@@ -13,6 +13,14 @@ namespace Scalable.Model.Engine
         private ITransformer _mlModel;
 
         /// <summary>
+        /// Exposing the ML model allowing additional ITransformer operations such as Bulk predictions', etc.
+        /// </summary>
+        public ITransformer MLModel
+        {
+            get => _mlModel;
+        }
+
+        /// <summary>
         /// Constructor with IConfiguration and MLContext as dependency
         public MLModelEngineSimple(string modelFilePathName)
         {

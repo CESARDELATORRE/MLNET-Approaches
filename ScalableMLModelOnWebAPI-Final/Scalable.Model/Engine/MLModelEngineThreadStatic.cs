@@ -12,6 +12,14 @@ namespace Scalable.Model.Engine
         private MLContext _mlContext;
         private ITransformer _mlModel;
 
+        /// <summary>
+        /// Exposing the ML model allowing additional ITransformer operations such as Bulk predictions', etc.
+        /// </summary>
+        public ITransformer MLModel
+        {
+            get => _mlModel;
+        }
+
         // The Prediction engine is not thread safe so it needs to be [ThreadStatic]: Unique for each thread (https://docs.microsoft.com/en-us/dotnet/api/system.threadstaticattribute)
         [ThreadStatic]
         private static PredictionEngine<TData, TPrediction> _predictionEngine;
