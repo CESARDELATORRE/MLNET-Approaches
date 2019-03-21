@@ -9,11 +9,10 @@ namespace Scalable.Model.Engine
                     where TData : class
                     where TPrediction : class, new()
     {
-        private MLContext _mlContext;
-        private ITransformer _mlModel;
-        private ObjectPool<PredictionEngine<TData, TPrediction>> _predictionEnginePool;
-
-        private int _maxObjectsRetained;
+        private readonly MLContext _mlContext;
+        private readonly ITransformer _mlModel;
+        private readonly ObjectPool<PredictionEngine<TData, TPrediction>> _predictionEnginePool;
+        private readonly int _maxObjectsRetained;
 
         /// <summary>
         /// Exposing the ML model allowing additional ITransformer operations such as Bulk predictions', etc.
