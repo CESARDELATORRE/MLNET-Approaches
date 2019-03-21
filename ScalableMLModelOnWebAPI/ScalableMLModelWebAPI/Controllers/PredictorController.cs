@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using ScalableMLModelWebAPI.DataModels;
 using ScalableMLModelWebAPI.MLModel;
-using ScalableMLModelWebAPI.Settings;
 
 namespace ScalableMLModelWebAPI.Controllers
 {

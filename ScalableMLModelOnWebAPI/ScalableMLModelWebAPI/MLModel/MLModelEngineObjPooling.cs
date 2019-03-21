@@ -4,8 +4,6 @@ using Microsoft.Extensions.ObjectPool;
 using System.IO;
 using System;
 using Microsoft.Data.DataView;
-using Microsoft.Extensions.Options;
-using ScalableMLModelWebAPI.Settings;
 using Microsoft.Extensions.Configuration;
 
 namespace ScalableMLModelWebAPI.MLModel
@@ -14,7 +12,6 @@ namespace ScalableMLModelWebAPI.MLModel
                     where TData : class
                     where TPrediction : class, new()
     {
-        private readonly IConfiguration _configuration;
         private MLContext _mlContext;
         private ITransformer _mlModel;
         private ObjectPool<PredictionEngine<TData, TPrediction>> _predictionEnginePool;
@@ -23,17 +20,13 @@ namespace ScalableMLModelWebAPI.MLModel
 
         /// <summary>
         /// Constructor with IConfiguration and MLContext as dependency
-        public MLModelEngineObjPooling(IConfiguration config, MLContext mlContext, int maximumPredictionEngineObjectsRetained = -1)
+        public MLModelEngineObjPooling(MLContext mlContext, ITransformer mlModel, int maximumPredictionEngineObjectsRetained = -1)
         {
-            _configuration = config;
-
             //Use injected singleton MLContext 
             _mlContext = mlContext;
 
-            //Load the ProductSalesForecast model from the .ZIP file
-            string modelFilePathName = _configuration["MLModel:MLModelFilePath"];
-            using (var fileStream = File.OpenRead(modelFilePathName))
-                _mlModel = _mlContext.Model.Load(fileStream);
+            //Use injected MLModel previously loaded from model's .zip file
+            _mlModel = mlModel;
 
             _maximumPredictionEngineObjectsRetained = maximumPredictionEngineObjectsRetained;
 

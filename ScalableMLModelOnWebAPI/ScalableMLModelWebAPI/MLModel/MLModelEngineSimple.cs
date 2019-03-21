@@ -11,32 +11,30 @@ namespace ScalableMLModelWebAPI.MLModel
                         where TData : class
                         where TPrediction : class, new()
     {
-        private readonly IConfiguration _configuration;
         private MLContext _mlContext;
         private ITransformer _mlModel;
+        private PredictionEngine<TData, TPrediction> _predictionEngine;
 
         /// <summary>
         /// Constructor with IConfiguration and MLContext as dependency
-        public MLModelEngineSimple(IConfiguration config, MLContext mlContext)
+        public MLModelEngineSimple(MLContext mlContext, ITransformer mlModel, PredictionEngine<TData, TPrediction> predEngine, int maximumPredictionEngineObjectsRetained = -1)
         {
-            _configuration = config;
-
             //Use injected singleton MLContext 
             _mlContext = mlContext;
 
-            //Load the ProductSalesForecast model from the .ZIP file
-            string modelFilePathName = _configuration["MLModel:MLModelFilePath"];
-            using (var fileStream = File.OpenRead(modelFilePathName))
-                _mlModel = _mlContext.Model.Load(fileStream);
+            //Use injected singleton MLModel previously loaded from model's .zip file
+            _mlModel = mlModel;
 
+            //Used injected transient PredictionEngine
+            _predictionEngine = predEngine;
         }
 
         public TPrediction Predict(TData dataSample)
         {
             // The Prediction engine is not thread safe so we always create a new one
-            var predictionEngine = _mlModel.CreatePredictionEngine<TData, TPrediction>(_mlContext);
+            // (NOT NEEDED) var predictionEngine = _mlModel.CreatePredictionEngine<TData, TPrediction>(_mlContext);
 
-            TPrediction prediction = predictionEngine.Predict(dataSample);
+            TPrediction prediction = _predictionEngine.Predict(dataSample);
             return prediction;
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ML;
+using Microsoft.ML.Data;
 using ScalableMLModelWebAPI.DataModels;
 using ScalableMLModelWebAPI.MLModel;
 
@@ -38,6 +40,31 @@ namespace ScalableMLModelWebAPI
                 return new MLContext(seed: 1);
             });
 
+            //ML Model (ITransformed) created as singleton for the whole ASP.NET Core app. Loads from .zip file here.
+            services.AddSingleton<ITransformer,
+                                  TransformerChain<ITransformer>> ((ctx) =>
+                                {
+                                    MLContext mlContext = ctx.GetRequiredService<MLContext>();
+                                    string modelFilePathName = Configuration["MLModel:MLModelFilePath"];
+
+                                    ITransformer mlModel;
+                                    using (var fileStream = File.OpenRead(modelFilePathName))
+                                        mlModel = mlContext.Model.Load(fileStream);
+
+                                    return (TransformerChain<ITransformer>) mlModel;
+                                });
+
+            // PredictionEngine created as Transient since it is not thread safe 
+            // This injected PredictionEngine is ONLY used on the MLModelEngineSimple implementation
+            // This injected PredictionEngine is NOT used when using the Object Pooling or ThreadStatic approaches 
+            services.AddTransient<PredictionEngine<SampleObservation, SamplePrediction>>((ctx) =>
+                                  {
+                                      MLContext mlContext = ctx.GetRequiredService<MLContext>();
+                                      ITransformer mlmodel = ctx.GetRequiredService<ITransformer>();
+                                      var predEngine = mlmodel.CreatePredictionEngine<SampleObservation, SamplePrediction>(mlContext);
+                                      return predEngine;
+                                  });
+
             // OPTION A:
             // Using MLModelEngine ObjPooling implementation
             //
@@ -60,7 +87,8 @@ namespace ScalableMLModelWebAPI
 
 
 
-            // Using 'Factory code' when registering. Not needed in current implementation
+            // Using 'Factory code' when registering the engine. 
+            // Not needed in current implementation
             //
             //services.AddSingleton<IMLModelEngine<SampleObservation, SamplePrediction>,
             //                      MLModelEngineObjPooling<SampleObservation, SamplePrediction>>((ctx) =>
