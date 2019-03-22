@@ -49,11 +49,5 @@ namespace Scalable.Model.Engine
             TPrediction prediction = predictionEngine.Predict(dataSample);
             return prediction;
         }
-
-        public IDataView PredictMany(IDataView testDataView)
-        {
-            IDataView predictions = _mlModel.Transform(testDataView);
-            return predictions;
-        }
     }
 }
