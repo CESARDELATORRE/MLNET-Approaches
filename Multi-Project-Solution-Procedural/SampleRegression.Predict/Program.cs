@@ -51,7 +51,7 @@ namespace SampleRegression.Predict
             var predEngine = mlModel.CreatePredictionEngine<SampleObservation, SamplePrediction>(mlContext);
 
             // Try a single prediction
-            var predictionResult = predEngine.Predict(sampleData);
+            SamplePrediction predictionResult = predEngine.Predict(sampleData);
 
             Console.WriteLine($"Single Prediction --> Actual value: {sampleData.Fare_amount} | Predicted value: {predictionResult.PredictedFareAmount}");
         }
