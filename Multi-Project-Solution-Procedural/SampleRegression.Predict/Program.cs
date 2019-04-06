@@ -48,7 +48,39 @@ namespace SampleRegression.Predict
         private static void Predict(MLContext mlContext, ITransformer mlModel, SampleObservation sampleData)
         {
             // Create prediction engine related to the loaded ML model          
+            
+
+            // Measuring CreatePredictionengine() time
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+
             var predEngine = mlModel.CreatePredictionEngine<SampleObservation, SamplePrediction>(mlContext);
+
+            watch.Stop();
+            long elapsedMs = watch.ElapsedMilliseconds;
+
+            Console.WriteLine($"");
+
+            Console.WriteLine($"++++++++++++++++++++++++++++++++++++++++++");
+            Console.WriteLine($"CreatePredictionEngine() takes: {elapsedMs.ToString()}");
+            Console.WriteLine($"++++++++++++++++++++++++++++++++++++++++++");
+
+            Console.WriteLine($"");
+
+            // Measuring CreatePredictionengine() time
+            var watch2 = System.Diagnostics.Stopwatch.StartNew();
+
+            var predEngine2 = mlModel.CreatePredictionEngine<SampleObservation, SamplePrediction>(mlContext);
+
+            watch.Stop();
+            long elapsedMs2 = watch2.ElapsedMilliseconds;
+
+            Console.WriteLine($"");
+
+            Console.WriteLine($"++++++++++++++++++++++++++++++++++++++++++");
+            Console.WriteLine($"CreatePredictionEngine() takes: {elapsedMs2.ToString()}");
+            Console.WriteLine($"++++++++++++++++++++++++++++++++++++++++++");
+
+            Console.WriteLine($"");
 
             // Try a single prediction
             SamplePrediction predictionResult = predEngine.Predict(sampleData);
@@ -59,10 +91,42 @@ namespace SampleRegression.Predict
         private static ITransformer LoadModelFromFile(MLContext mlContext, string modelFilePath)
         {
             ITransformer mlModel;
+
+            // Measuring CreatePredictionengine() time
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             using (var stream = new FileStream(modelFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 mlModel = mlContext.Model.Load(stream);
             }
+
+            watch.Stop();
+            long elapsedMs = watch.ElapsedMilliseconds;
+
+            Console.WriteLine($"");
+
+            Console.WriteLine($"++++++++++++++++++++++++++++++++++++++++++");
+            Console.WriteLine($"Load model takes: {elapsedMs.ToString()}");
+            Console.WriteLine($"++++++++++++++++++++++++++++++++++++++++++");
+
+            Console.WriteLine($"");
+
+            // Measuring CreatePredictionengine() time
+            var watch2 = System.Diagnostics.Stopwatch.StartNew();
+            using (var stream = new FileStream(modelFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                mlModel = mlContext.Model.Load(stream);
+            }
+
+            watch.Stop();
+            long elapsedMs2 = watch2.ElapsedMilliseconds;
+
+            Console.WriteLine($"");
+
+            Console.WriteLine($"++++++++++++++++++++++++++++++++++++++++++");
+            Console.WriteLine($"Load model takes: {elapsedMs2.ToString()}");
+            Console.WriteLine($"++++++++++++++++++++++++++++++++++++++++++");
+
+            Console.WriteLine($"");
 
             return mlModel;
         }
